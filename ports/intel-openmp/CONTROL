@@ -1,0 +1,8 @@
+Source: intel-openmp
+Version: 2020.0.166
+Description: Intel® OpenMP Compatibility Layer Libraries.
+    The Intel® Compiler supports most of the OpenMP Version Technical Report 4: Version 5.0 Preview 1.
+    The OpenMP API provides symmetric multiprocessing (SMP) with the following major features:
+        - Relieves you from implementing the low-level details of iteration space partitioning, data sharing, thread creation, scheduling, or synchronization.
+        - Provides the benefit of performance available from shared memory multiprocessor and multi-core processor systems on all supported Intel architectures, including those processors with Intel® Hyper-Threading Technology (Intel® HT Technology).
+Homepage: https://www.openmprtl.org/

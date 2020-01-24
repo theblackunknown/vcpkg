@@ -1,0 +1,35 @@
+include_guard(GLOBAL)
+
+cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
+
+if(intel-openmp_FIND_COMPONENTS)
+  set(_REQUIRED_COMPONENTS ${intel-openmp_FIND_COMPONENTS})
+else( )
+  set(_REQUIRED_COMPONENTS
+    performance
+  )
+endif( )
+
+function(verify_path description path)
+  if(NOT EXISTS "${path}")
+      message(FATAL_ERROR "${description} is not found at the expected location: ${path}
+Possible reasons include:
+* The path was deleted, renamed, or moved to another location.
+* An install or uninstall procedure did not complete successfully.
+* The installation package was faulty and contained
+   \"${CMAKE_CURRENT_LIST_FILE}\"
+but not all the files it references.
+")
+  endif()
+endfunction()
+
+include(FindPackageMessage)
+
+get_filename_component(_PACKAGE_ROOT "${CMAKE_CURRENT_LIST_DIR}/../.." REALPATH)
+
+set(intel-openmp_TARGETS)
+foreach(_REQUIRED_COMPONENT ${_REQUIRED_COMPONENTS})
+  include("${CMAKE_CURRENT_LIST_DIR}/intel-openmp-config-${_REQUIRED_COMPONENT}.cmake")
+  list(APPEND intel-openmp_TARGETS mkl::${_REQUIRED_COMPONENT})
+endforeach()
+

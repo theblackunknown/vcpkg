@@ -1,0 +1,32 @@
+
+add_library(intel-openmp::performance SHARED IMPORTED)
+
+get_filename_component(_PATH_LIBRARY "${_PACKAGE_ROOT}/bin/@FILENAME_LIBRARY@" ABSOLUTE)
+get_filename_component(_PATH_IMPLIB  "${_PACKAGE_ROOT}/lib/@FILENAME_LIBRARY_IMPLIB@" ABSOLUTE)
+
+verify_path("@DESCRIPTION@" "${_PATH_LIBRARY}")
+verify_path("@DESCRIPTION@" "${_PATH_IMPLIB}")
+
+target_compile_options(intel-openmp::performance
+    INTERFACE
+        $<$<CXX_COMPILER_ID:MSVC>:
+            /openmp:experimental
+        >
+        $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:
+            -openmp
+            -qopenmp
+        >
+)
+
+set_target_properties(intel-openmp::performance
+    PROPERTIES
+        IMPORTED_LOCATION "${_PATH_LIBRARY}"
+        IMPORTED_IMPLIB   "${_PATH_IMPLIB}"
+)
+
+find_package_message(intel-openmp::performance
+  "[intel-openmp] @DESCRIPTION@: ${_PATH_LIBRARY}"
+  "[${_PATH_LIBRARY}${_PATH_IMPLIB}]")
+
+unset(_PATH_LIBRARY)
+
