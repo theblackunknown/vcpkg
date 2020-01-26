@@ -1,3 +1,14 @@
 Source: intel-mkl
-Version: 2018.0.1
-Description: Intel® Math Kernel Library (Intel® MKL) accelerates math processing routines, increases application performance, and reduces development time on Intel® processors. 
+Version: 2020.0.166
+Description: Intel® Math Kernel Library (Intel® MKL) accelerates math processing routines, increases application performance, and reduces development time on Intel® processors.
+    NOTE: Port version does not corresponds the install version as it relies on installed Intel MKL libraries.
+    Port version is the latest known and tested Intel MKL version.
+Homepage: https://software.intel.com/en-us/articles/mkl-reference-manual
+
+Feature: threading-openmp
+Build-Depends: intel-openmp
+Description: Intel® MKL Threading Layer Library using Intel OpenMP Compatibility layer
+
+Feature: threading-tbb
+Build-Depends: tbb
+Description: Intel® MKL Threading Layer Library using Intel TBB

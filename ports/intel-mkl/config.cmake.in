@@ -1,0 +1,73 @@
+include_guard(GLOBAL)
+
+cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
+
+if(@PACKAGENAME@_FIND_COMPONENTS)
+  set(_REQUESTED_COMPONENTS ${@PACKAGENAME@_FIND_COMPONENTS})
+else( )
+  set(_REQUESTED_COMPONENTS
+    @PACKAGE_DEFAULT_COMPONENTS@
+  )
+endif( )
+set(_REQUIRED_COMPONENTS
+  @PACKAGE_REQUIRED_COMPONENTS@
+)
+
+function(verify_path description path)
+  if(NOT EXISTS "${path}")
+      message(FATAL_ERROR "${description} is not found at the expected location: ${path}
+Possible reasons include:
+* The path was deleted, renamed, or moved to another location.
+* An install or uninstall procedure did not complete successfully.
+* The installation package was faulty and contained
+   \"${CMAKE_CURRENT_LIST_FILE}\"
+but not all the files it references.
+")
+  endif()
+endfunction()
+
+include(FindPackageMessage)
+
+get_filename_component(_PACKAGE_ROOT "${CMAKE_CURRENT_LIST_DIR}/../.." REALPATH)
+
+add_library(@PACKAGENAME@::headers INTERFACE IMPORTED)
+
+get_filename_component(_PATH_INCLUDE     "${_PACKAGE_ROOT}/include" REALPATH)
+get_filename_component(_PATH_INCLUDE_MKL "${_PATH_INCLUDE}/mkl"     REALPATH)
+
+verify_path("Intel MKL library headers"                    "${_PATH_INCLUDE}")
+verify_path("Intel MKL library headers (mkl subdirectory)" "${_PATH_INCLUDE_MKL}")
+
+target_include_directories(@PACKAGENAME@::headers SYSTEM
+  INTERFACE
+    "${_PATH_INCLUDE}"
+    "${_PATH_INCLUDE_MKL}"
+)
+
+find_package_message(@PACKAGENAME@::headers
+  "Intel MKL library headers: ${_PATH_INCLUDE}"
+  "[${_PATH_INCLUDE}]"
+)
+
+unset(_PATH_INCLUDE)
+unset(_PATH_INCLUDE_MKL)
+
+add_library(@PACKAGENAME@::runtimes INTERFACE IMPORTED)
+
+target_link_libraries(@PACKAGENAME@::runtimes
+  INTERFACE
+    @PACKAGE_RUNTIME_COMPONENTS@
+)
+
+find_package_message(@PACKAGENAME@::runtimes
+  "Intel MKL library runtimes: @PACKAGE_RUNTIME_COMPONENTS@"
+  "[@PACKAGE_RUNTIME_COMPONENTS@]"
+)
+
+set(@PACKAGENAME@_TARGETS)
+foreach(_REQUIRED_COMPONENT ${_REQUIRED_COMPONENTS})
+  include("${CMAKE_CURRENT_LIST_DIR}/@PACKAGENAME@-config-${_REQUIRED_COMPONENT}.cmake")
+  list(APPEND @PACKAGENAME@_TARGETS mkl::${_REQUIRED_COMPONENT})
+endforeach()
+
+unset(_PACKAGE_ROOT)

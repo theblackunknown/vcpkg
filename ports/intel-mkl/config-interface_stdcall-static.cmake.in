@@ -1,0 +1,46 @@
+
+add_library(@TARGET_NAMESPACE@::@TARGET_NAME@ STATIC IMPORTED)
+
+get_filename_component(_LOCATION "${_PACKAGE_ROOT}/lib/@FILENAME_LOCATION@" ABSOLUTE)
+
+verify_path("@DESCRIPTION@" "${_LOCATION}")
+
+target_compile_definitions(@TARGET_NAMESPACE@::@TARGET_NAME@
+    INTERFACE
+       MKL_STDCALL
+        $<$<CXX_COMPILER_ID:MSVC>:
+            @COMPILE_MSVC_DEFINITIONS@
+        >
+        $<$<CXX_COMPILER_ID:Clang>:
+            @COMPILE_Clang_DEFINITIONS@
+        >
+        $<$<CXX_COMPILER_ID:GNU>:
+            @COMPILE_GNU_DEFINITIONS@
+        >
+)
+
+target_compile_options(@TARGET_NAMESPACE@::@TARGET_NAME@
+    INTERFACE
+        @COMPILE_OPTIONS@
+        $<$<CXX_COMPILER_ID:MSVC>:
+            @COMPILE_MSVC_OPTIONS@
+        >
+        $<$<CXX_COMPILER_ID:Clang>:
+            @COMPILE_Clang_OPTIONS@
+        >
+        $<$<CXX_COMPILER_ID:GNU>:
+            @COMPILE_GNU_OPTIONS@
+        >
+)
+
+set_target_properties(@TARGET_NAMESPACE@::@TARGET_NAME@
+    PROPERTIES
+        IMPORTED_LOCATION                 "${_LOCATION}"
+)
+
+find_package_message(@TARGET_NAMESPACE@::@TARGET_NAME@
+  "@DESCRIPTION@: ${_LOCATION}"
+  "[${_LOCATION}]")
+
+unset(_LOCATION)
+

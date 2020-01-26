@@ -1,0 +1,61 @@
+
+add_library(@TARGET_NAMESPACE@::@TARGET_NAME@ STATIC IMPORTED)
+
+get_filename_component(_LOCATION "${_PACKAGE_ROOT}/bin/@FILENAME_LOCATION@" ABSOLUTE)
+
+verify_path("@DESCRIPTION@" "${_LOCATION}")
+
+target_compile_definitions(@TARGET_NAMESPACE@::@TARGET_NAME@
+    INTERFACE
+        @COMPILE_DEFINITIONS@
+        $<$<CXX_COMPILER_ID:MSVC>:
+            @COMPILE_MSVC_DEFINITIONS@
+        >
+        $<$<CXX_COMPILER_ID:Clang>:
+            @COMPILE_Clang_DEFINITIONS@
+        >
+        $<$<CXX_COMPILER_ID:GNU>:
+            @COMPILE_GNU_DEFINITIONS@
+        >
+)
+
+target_compile_options(@TARGET_NAMESPACE@::@TARGET_NAME@
+    INTERFACE
+        @COMPILE_OPTIONS@
+        $<$<CXX_COMPILER_ID:MSVC>:
+            @COMPILE_MSVC_OPTIONS@
+        >
+        $<$<CXX_COMPILER_ID:Clang>:
+            @COMPILE_Clang_OPTIONS@
+        >
+        $<$<CXX_COMPILER_ID:GNU>:
+            @COMPILE_GNU_OPTIONS@
+        >
+)
+
+find_package(intel-openmp
+    REQUIRED
+    CONFIG
+    COMPONENTS
+        performance
+)
+
+get_target_property(_LOCATION_INTEL_OPENMP intel-openmp::performance IMPORTED_LOCATION)
+
+set_target_properties(@TARGET_NAMESPACE@::@TARGET_NAME@
+    PROPERTIES
+        IMPORTED_LOCATION "${_LOCATION}"
+)
+
+target_link_libraries(@TARGET_NAMESPACE@::@TARGET_NAME@
+    INTERFACE
+        intel-mkl::computational
+        intel-openmp::performance
+)
+
+find_package_message(@TARGET_NAMESPACE@::@TARGET_NAME@
+  "@DESCRIPTION@: ${_LOCATION} (Intel OpenMP: ${_LOCATION_INTEL_OPENMP})"
+  "[${_LOCATION}${_LOCATION_INTEL_OPENMP}]")
+
+unset(_LOCATION)
+

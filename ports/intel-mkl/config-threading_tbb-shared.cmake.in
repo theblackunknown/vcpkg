@@ -1,0 +1,71 @@
+
+add_library(@TARGET_NAMESPACE@::@TARGET_NAME@ SHARED IMPORTED)
+
+get_filename_component(_LOCATION        "${_PACKAGE_ROOT}/bin/@FILENAME_LOCATION@" ABSOLUTE)
+get_filename_component(_LOCATION_IMPLIB "${_PACKAGE_ROOT}/lib/@FILENAME_IMPLIB@" ABSOLUTE)
+
+verify_path("@DESCRIPTION@" "${_LOCATION}")
+verify_path("@DESCRIPTION@" "${_LOCATION_IMPLIB}")
+
+target_compile_definitions(@TARGET_NAMESPACE@::@TARGET_NAME@
+    INTERFACE
+        @COMPILE_DEFINITIONS@
+        $<$<CXX_COMPILER_ID:MSVC>:
+            @COMPILE_MSVC_DEFINITIONS@
+        >
+        $<$<CXX_COMPILER_ID:Clang>:
+            @COMPILE_Clang_DEFINITIONS@
+        >
+        $<$<CXX_COMPILER_ID:GNU>:
+            @COMPILE_GNU_DEFINITIONS@
+        >
+)
+
+target_compile_options(@TARGET_NAMESPACE@::@TARGET_NAME@
+    INTERFACE
+        @COMPILE_OPTIONS@
+        $<$<CXX_COMPILER_ID:MSVC>:
+            @COMPILE_MSVC_OPTIONS@
+        >
+        $<$<CXX_COMPILER_ID:Clang>:
+            @COMPILE_Clang_OPTIONS@
+        >
+        $<$<CXX_COMPILER_ID:GNU>:
+            @COMPILE_GNU_OPTIONS@
+        >
+)
+
+find_package(TBB
+    REQUIRED
+    CONFIG
+    COMPONENTS
+        tbb
+)
+
+get_target_property(_LOCATION_INTEL_TBB TBB::tbb IMPORTED_LOCATION)
+if(NOT _LOCATION_INTEL_TBB)
+    get_target_property(_LOCATION_INTEL_TBB TBB::tbb IMPORTED_LOCATION_RELEASE)
+endif()
+if(NOT _LOCATION_INTEL_TBB)
+    get_target_property(_LOCATION_INTEL_TBB TBB::tbb IMPORTED_LOCATION_DEBUG)
+endif()
+
+set_target_properties(@TARGET_NAMESPACE@::@TARGET_NAME@
+    PROPERTIES
+        IMPORTED_LOCATION "${_LOCATION}"
+        IMPORTED_IMPLIB   "${_LOCATION_IMPLIB}"
+)
+
+target_link_libraries(@TARGET_NAMESPACE@::@TARGET_NAME@
+    INTERFACE
+        intel-mkl::computational
+        TBB::tbb
+)
+
+find_package_message(@TARGET_NAMESPACE@::@TARGET_NAME@
+  "@DESCRIPTION@: ${_LOCATION} (Intel TBB: ${_LOCATION_INTEL_TBB})"
+  "[${_LOCATION}${_LOCATION_IMPLIB}${_LOCATION_INTEL_TBB}]")
+
+unset(_LOCATION)
+unset(_LOCATION_IMPLIB)
+
