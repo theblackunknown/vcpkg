@@ -1,7 +1,7 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO OpenImageIO/oiio
-    REF Release-2.1.9.0
+    REF fdd982a9922ff508b8b22e5d024356b582572f46 #2.1.9.0
     SHA512 1d076cb035b1b2cb603343465ed810ca47223211870d58f48c177d40d71a9cf82e53548b0c70127daf5dbd06f1b24772919e49e55110d914a542bcb62b99f6e8
     HEAD_REF master
     PATCHES
@@ -37,13 +37,42 @@ vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
     opencv      USE_OPENCV
     openjpeg    USE_OPENJPEG
     webp        USE_WEBP
-    pybind11    USE_PYTHON
+    python      USE_PYTHON
     tools       OIIO_BUILD_TOOLS
 )
 
 vcpkg_find_acquire_program(PYTHON3)
 get_filename_component(PYTHON3_DIR "${PYTHON3}" DIRECTORY)
 vcpkg_add_to_path("${PYTHON3_DIR}")
+
+find_path(_PATH_INCLUDE
+    NAMES
+        Python.h
+    PATHS
+        "${CURRENT_INSTALLED_DIR}/include"
+        "${CURRENT_INSTALLED_DIR}/include/python3.7"
+        "${CURRENT_INSTALLED_DIR}/include/python3.7m"
+)
+
+find_library(_PATH_LIBRARY_DEBUG
+    NAMES
+        python3.7dm
+        python37_d
+    PATHS
+        "${CURRENT_INSTALLED_DIR}/debug/lib"
+)
+
+find_library(_PATH_LIBRARY_RELEASE
+    NAMES
+        python3.7m
+        python37
+    PATHS
+        "${CURRENT_INSTALLED_DIR}/lib"
+)
+
+message(STATUS "_PATH_INCLUDE: ${_PATH_INCLUDE}")
+message(STATUS "_PATH_LIBRARY_DEBUG: ${_PATH_LIBRARY_DEBUG}")
+message(STATUS "_PATH_LIBRARY_RELEASE: ${_PATH_LIBRARY_RELEASE}")
 
 vcpkg_configure_cmake(
     SOURCE_PATH ${SOURCE_PATH}
@@ -59,6 +88,12 @@ vcpkg_configure_cmake(
         -DBUILD_MISSING_PYBIND11=OFF
         -DBUILD_MISSING_DEPS=OFF
         -DVERBOSE=ON
+        -DPYTHON_VERSION:STRING=3.7
+        -DPYTHON_INCLUDE_DIR:PATH=${_PATH_INCLUDE}
+    OPTIONS_RELEASE
+        -DPYTHON_LIBRARY:PATH=${_PATH_LIBRARY_RELEASE}
+    OPTIONS_DEBUG
+        -DPYTHON_LIBRARY:PATH=${_PATH_LIBRARY_DEBUG}
 )
 
 vcpkg_install_cmake()
