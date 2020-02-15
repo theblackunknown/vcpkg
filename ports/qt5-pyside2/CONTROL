@@ -1,0 +1,5 @@
+Source: qt5-pyside2
+Version: 5.12.5
+Homepage: https://doc.qt.io/qtforpython/index.html
+Description: Qt for Python offers the official Python bindings for Qt (PySide2), so that you can use Qt5 APIs in your Python applications, and a binding generator tool (Shiboken2) which can be used to expose C++ projects into Python.
+Build-Depends: qt5-base, llvm, python3
