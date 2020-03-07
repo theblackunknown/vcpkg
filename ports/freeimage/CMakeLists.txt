@@ -2,7 +2,12 @@ cmake_minimum_required(VERSION 3.4)
 
 include(GNUInstallDirs)
 
-project(FreeImage C CXX)
+project(FreeImage
+    VERSION 3.18.0
+    DESCRIPTION "Support library for graphics image formats"
+    HOMEPAGE_URL "https://sourceforge.net/projects/freeimage/"
+    LANGUAGES C CXX
+)
 
 if(MSVC)
   add_definitions("-D_CRT_SECURE_NO_WARNINGS")
@@ -138,16 +143,52 @@ target_link_libraries(FreeImagePlus PUBLIC FreeImage)
 list(APPEND PUBLIC_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/Wrapper/FreeImagePlus/FreeImagePlus.h)
 
 install(TARGETS FreeImage
+        EXPORT FreeImageTargets
         COMPONENT runtime
         RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
         LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT shlib
         ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT lib)
 
 install(TARGETS FreeImagePlus
+        EXPORT FreeImageTargets
         COMPONENT runtime-cpp
         RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
         LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT shlib
         ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT lib)
+
+install(EXPORT FreeImageTargets
+    NAMESPACE FreeImage::
+    DESTINATION "${CMAKE_INSTALL_DATADIR}/freeimage"
+)
+
+include(CMakePackageConfigHelpers)
+
+file(WRITE "${CMAKE_BINARY_DIR}/FreeImageConfig.cmake.in" [=[
+    @PACKAGE_INIT@
+    include("@PACKAGE_PATH_EXPORT_TARGETS@")
+]=])
+
+set(PATH_EXPORT_TARGETS "${CMAKE_INSTALL_DATADIR}/freeimage/FreeImageTargets.cmake")
+configure_package_config_file(
+    "${CMAKE_BINARY_DIR}/FreeImageConfig.cmake.in"
+    "${CMAKE_BINARY_DIR}/FreeImageConfig.cmake"
+    PATH_VARS
+        PATH_EXPORT_TARGETS
+    INSTALL_DESTINATION ${CMAKE_INSTALL_DATADIR}/freeimage
+)
+
+write_basic_package_version_file("${CMAKE_BINARY_DIR}/FreeImageConfigVersion.cmake"
+  COMPATIBILITY AnyNewerVersion
+)
+
+install(
+    FILES
+        "${CMAKE_BINARY_DIR}/FreeImageConfig.cmake"
+        "${CMAKE_BINARY_DIR}/FreeImageConfigVersion.cmake"
+    DESTINATION
+        "${CMAKE_INSTALL_DATADIR}/freeimage"
+)
+
 
 if(INSTALL_HEADERS)
     install(FILES ${PUBLIC_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
