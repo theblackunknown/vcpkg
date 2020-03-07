@@ -1,17 +1,17 @@
-name: vcpkg (default packages)
+name: vcpkg integration - openimageio
 
 on:
-  - push
-  - pull_request
+  push:
+    branches:
+      - openimageio
+      - github-workflows
+      - integration-openimageio
+    paths:
+      - '.github/**'
+      - 'ports/openimageio/**'
 
 env:
-  PORTS: pybind11
-  # push:
-  #   branches-ignore:
-  #     - 'integration-*'
-  #   paths:
-  #     - 'ports/**'
-  #     - '.github/**'
+  PORTS: openimageio[libraw,pybind11]
 
 jobs:
   build-vcpkg:
@@ -43,7 +43,10 @@ jobs:
       uses: actions/cache@v1.1.2
       with:
         path: .
-        key: ${{ runner.os }}-vcpkg-temp0-${{ hashFiles('toolsrc/src/**') }}
+        key: ${{ runner.os }}-vcpkg-integration-openimageio-${{ hashFiles('toolsrc/src/**') }}
+        restore-keys: |
+          ${{ runner.os }}-vcpkg-temp0-${{ hashFiles('toolsrc/src/**') }}
+          ${{ runner.os }}-vcpkg-${{ hashFiles('toolsrc/src/**') }}
 
     - name: build vcpkg
       if: steps.cache-vcpkg.outputs.cache-hit != 'true'
@@ -122,36 +125,60 @@ jobs:
       uses: actions/cache@v1.1.2
       with:
         path: downloads
-        key: ${{ runner.os }}-${{ matrix.triplet }}-vcpkg-temp0-downloads-${{ hashFiles('toolsrc/src/**') }}
+        key: ${{ runner.os }}-${{ matrix.triplet }}-vcpkg-integration-openimageio-downloads-${{ hashFiles('toolsrc/src/**') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ matrix.triplet }}-vcpkg-temp0-downloads-${{ hashFiles('toolsrc/src/**') }}
+          ${{ runner.os }}-${{ matrix.triplet }}-vcpkg-downloads-${{ hashFiles('toolsrc/src/**') }}
 
     - name: cache vcpkg buildtrees
       id: cache-vcpkg-buildtrees
       uses: actions/cache@v1.1.2
       with:
         path: buildtrees
-        key: ${{ runner.os }}-${{ matrix.triplet }}-vcpkg-temp0-buildtrees-${{ hashFiles('toolsrc/src/**') }}
+        key: ${{ runner.os }}-${{ matrix.triplet }}-vcpkg-integration-openimageio-buildtrees-${{ hashFiles('toolsrc/src/**') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ matrix.triplet }}-vcpkg-temp0-buildtrees-${{ hashFiles('toolsrc/src/**') }}
+          ${{ runner.os }}-${{ matrix.triplet }}-vcpkg-buildtrees-${{ hashFiles('toolsrc/src/**') }}
 
     - name: cache vcpkg packages
       id: cache-vcpkg-packages
       uses: actions/cache@v1.1.2
       with:
         path: packages
-        key: ${{ runner.os }}-${{ matrix.triplet }}-vcpkg-temp0-packages-${{ hashFiles('toolsrc/src/**') }}
+        key: ${{ runner.os }}-${{ matrix.triplet }}-vcpkg-integration-openimageio-packages-${{ hashFiles('toolsrc/src/**') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ matrix.triplet }}-vcpkg-temp0-packages-${{ hashFiles('toolsrc/src/**') }}
+          ${{ runner.os }}-${{ matrix.triplet }}-vcpkg-packages-${{ hashFiles('toolsrc/src/**') }}
 
     - name: cache vcpkg installed
       id: cache-vcpkg-installed
       uses: actions/cache@v1.1.2
       with:
         path: installed
-        key: ${{ runner.os }}-${{ matrix.triplet }}-vcpkg-temp0-installed-${{ hashFiles('toolsrc/src/**') }}
+        key: ${{ runner.os }}-${{ matrix.triplet }}-vcpkg-integration-openimageio-installed-${{ hashFiles('toolsrc/src/**') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ matrix.triplet }}-vcpkg-temp0-installed-${{ hashFiles('toolsrc/src/**') }}
+          ${{ runner.os }}-${{ matrix.triplet }}-vcpkg-installed-${{ hashFiles('toolsrc/src/**') }}
 
     - name: remove ports
       run: |
         ./vcpkg${{ matrix.executable_suffix }} --overlay-triplets=triplets/community remove --triplet ${{ matrix.triplet }} --recurse ${{ env.PORTS }}
 
+    - name: system dependencies (freeglut)
+      if: runner.os != 'Linux'
+      run: sudo apt-get install -y libxi-dev libgl1-mesa-dev libglu1-mesa-dev mesa-common-dev libxrandr-dev libxxf86vm-dev
+
+    - name: system dependencies (pybind11)
+      if: runner.os != 'Linux'
+      run: sudo apt-get install -y python2.7 libpython2.7 libpython2.7-dev
+
     - name: install ports
       run: |
         ./vcpkg${{ matrix.executable_suffix }} --overlay-triplets=triplets/community install --triplet ${{ matrix.triplet }} --keep-going --recurse ${{ env.PORTS }}
+
+    - name: export ports
+      run: |
+        ./vcpkg${{ matrix.executable_suffix }} --overlay-triplets=triplets/community export --triplet ${{ matrix.triplet }} --raw --output=vcpkg-export-${{ github.run_id }} ${{ env.PORTS }}
 
     - name: upload buildtrees
       if: failure()
@@ -159,10 +186,6 @@ jobs:
       with:
         name: vcpkg-buildtrees-${{ matrix.name }}-${{ matrix.triplet }}-${{ github.run_id }}
         path: ./buildtrees
-
-    - name: export ports
-      run: |
-        ./vcpkg${{ matrix.executable_suffix }} --overlay-triplets=triplets/community export --triplet ${{ matrix.triplet }} --raw --output=vcpkg-export-${{ github.run_id }} ${{ env.PORTS }}
 
     - name: Upload
       uses: actions/upload-artifact@v1
