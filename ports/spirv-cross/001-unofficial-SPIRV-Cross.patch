@@ -1,0 +1,66 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d8ea49a..36eaf5a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -32,6 +32,7 @@ project(SPIRV-Cross LANGUAGES CXX C)
+ enable_testing()
+ 
+ include(GNUInstallDirs)
++include(CMakePackageConfigHelpers)
+ 
+ option(SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS "Instead of throwing exceptions assert" OFF)
+ option(SPIRV_CROSS_SHARED "Build the C API as a single shared library." OFF)
+@@ -187,13 +188,12 @@ macro(spirv_cross_add_library name config_name library_type)
+ 
+ 	if (NOT SPIRV_CROSS_SKIP_INSTALL)
+ 		install(TARGETS ${name}
+-			EXPORT ${config_name}Config
++			EXPORT unofficial-SPIRV-Cross-targets
+ 			RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+ 			LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+ 			ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+ 			PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/spirv_cross)
+ 		install(FILES ${hdrs} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/spirv_cross)
+-		install(EXPORT ${config_name}Config DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${config_name}/cmake)
+ 		export(TARGETS ${name} FILE ${config_name}Config.cmake)
+ 	endif()
+ endmacro()
+@@ -615,3 +615,38 @@ if (SPIRV_CROSS_CLI)
+ 		endif()
+ 	endif()
+ endif()
++
++if (NOT SPIRV_CROSS_SKIP_INSTALL)
++	file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/unofficial-SPIRV-Cross-config.cmake.in" [=[
++	    @PACKAGE_INIT@
++	    include("@PACKAGE_PATH_EXPORT_TARGETS@")
++	]=])
++
++	set(PATH_EXPORT_TARGETS "${CMAKE_INSTALL_DATADIR}/unofficial-SPIRV-Cross/unofficial-SPIRV-Cross-targets.cmake")
++	configure_package_config_file(
++	    "${CMAKE_CURRENT_BINARY_DIR}/unofficial-SPIRV-Cross-config.cmake.in"
++	    "${CMAKE_CURRENT_BINARY_DIR}/unofficial-SPIRV-Cross-config.cmake"
++	    PATH_VARS
++	        PATH_EXPORT_TARGETS
++	    INSTALL_DESTINATION ${CMAKE_INSTALL_DATADIR}/unofficial-SPIRV-Cross
++	)
++
++	write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/unofficial-SPIRV-Cross-config-version.cmake"
++		VERSION 1.3.224.1
++		COMPATIBILITY AnyNewerVersion
++	)
++
++	install(
++	    EXPORT      unofficial-SPIRV-Cross-targets
++	    NAMESPACE   "unofficial::SPIRV-Cross::"
++	    DESTINATION "${CMAKE_INSTALL_DATADIR}/unofficial-SPIRV-Cross"
++	)
++
++	install(
++	    FILES
++	        "${CMAKE_CURRENT_BINARY_DIR}/unofficial-SPIRV-Cross-config.cmake"
++	        "${CMAKE_CURRENT_BINARY_DIR}/unofficial-SPIRV-Cross-config-version.cmake"
++	    DESTINATION
++	        "${CMAKE_INSTALL_DATADIR}/unofficial-SPIRV-Cross"
++	)
++endif()

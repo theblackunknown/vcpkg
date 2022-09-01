@@ -1,0 +1,40 @@
+diff --git a/MoltenVK/MoltenVK.xcodeproj/project.pbxproj b/MoltenVK/MoltenVK.xcodeproj/project.pbxproj
+index cda7856..434c1b4 100644
+--- a/MoltenVK/MoltenVK.xcodeproj/project.pbxproj
++++ b/MoltenVK/MoltenVK.xcodeproj/project.pbxproj
+@@ -1594,7 +1594,6 @@
+ 				GCC_OPTIMIZATION_LEVEL = 0;
+ 				GCC_PREPROCESSOR_DEFINITIONS = (
+ 					"DEBUG=1",
+-					"SPIRV_CROSS_NAMESPACE_OVERRIDE=MVK_spirv_cross",
+ 					"MVK_HIDE_VULKAN_SYMBOLS=$(MVK_HIDE_VULKAN_SYMBOLS)",
+ 				);
+ 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+@@ -1667,7 +1666,6 @@
+ 				GCC_OPTIMIZATION_LEVEL = 2;
+ 				GCC_PREPROCESSOR_DEFINITIONS = (
+ 					"NDEBUG=1",
+-					"SPIRV_CROSS_NAMESPACE_OVERRIDE=MVK_spirv_cross",
+ 					"MVK_HIDE_VULKAN_SYMBOLS=$(MVK_HIDE_VULKAN_SYMBOLS)",
+ 				);
+ 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+diff --git a/MoltenVKShaderConverter/MoltenVKShaderConverter.xcodeproj/project.pbxproj b/MoltenVKShaderConverter/MoltenVKShaderConverter.xcodeproj/project.pbxproj
+index d5bd71d..3975172 100644
+--- a/MoltenVKShaderConverter/MoltenVKShaderConverter.xcodeproj/project.pbxproj
++++ b/MoltenVKShaderConverter/MoltenVKShaderConverter.xcodeproj/project.pbxproj
+@@ -617,7 +617,6 @@
+ 				GCC_OPTIMIZATION_LEVEL = 0;
+ 				GCC_PREPROCESSOR_DEFINITIONS = (
+ 					"DEBUG=1",
+-					"SPIRV_CROSS_NAMESPACE_OVERRIDE=MVK_spirv_cross",
+ 				);
+ 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+ 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+@@ -677,7 +676,6 @@
+ 				GCC_OPTIMIZATION_LEVEL = 2;
+ 				GCC_PREPROCESSOR_DEFINITIONS = (
+ 					"NDEBUG=1",
+-					"SPIRV_CROSS_NAMESPACE_OVERRIDE=MVK_spirv_cross",
+ 				);
+ 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+ 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;

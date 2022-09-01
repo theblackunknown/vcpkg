@@ -1,0 +1,15 @@
+{
+  "name": "moltenvk",
+  "version": "1.1.11",
+  "description": "MoltenVK is a Vulkan Portability implementation.",
+  "homepage": "https://github.com/KhronosGroup/MoltenVK",
+  "license": "Apache-2.0",
+  "supports": "osx",
+  "dependencies": [
+    "cereal",
+    "glslang",
+    "spirv-cross",
+    "spirv-tools",
+    "vulkan-headers"
+  ]
+}
