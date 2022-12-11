@@ -29,7 +29,7 @@ index 1f1902c..623bec8 100644
 +)
 +
 +write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/unofficial-mdl-config-version.cmake"
-+    VERSION     2021.0.1
++    VERSION     2022.0.1
 +  COMPATIBILITY SameMajorVersion
 +)
 +

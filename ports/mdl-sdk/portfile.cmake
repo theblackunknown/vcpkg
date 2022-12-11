@@ -1,34 +1,35 @@
 vcpkg_check_linkage(ONLY_DYNAMIC_LIBRARY)
 
-# Notes on Clang 7 binary download:
-# MDL-SDK requires Clang version 7.0.0 previsely as a *build tool* not as a *source compiler* as it is usually used.
+# Notes on Clang 12 binary download:
+# MDL-SDK requires Clang version 12.0.1 precisely as a *build tool* not as a *source compiler* as it is usually used.
 # This ports provides CMake instructions to fetch and use it to build this port - and only for this purpose:
 # it will not be installed and as such not be usable by any other ports. 
 # 
 # More details on the why below:
-# MDL-SDK supports its own source file format (NVIDIA MDL sources `.mdl`), and can codegen executable code at runtime using its own vendored and modified version of LLVM 7.0.0. 
-# Also, at buildtime MDL-SDK also "pre-compile" MDL core libraries as LLVM bitcode directly into its binaries (through generated c array in headers) using this very Clang 7.0.0.
-# To have everything working together, we have to use a Clang as build tool which match the vendored LLVM version so that LLVM bitcode can be loaded/linked properly as it is not compatible across MLLVM versions.
+# MDL-SDK supports its own source file format (NVIDIA MDL sources `.mdl`), and can codegen executable code at runtime using its own vendored and modified version of LLVM 12.0.1. 
+# Also, at buildtime MDL-SDK also "pre-compile" MDL core libraries as LLVM bitcode directly into its binaries (through generated c array in headers) using this very Clang 12.0.1.
+# To have everything working together, we have to use a Clang as build tool which match the vendored LLVM version so that LLVM bitcode can be loaded/linked properly as it is not compatible across LLVM versions.
 
-# Clang 7 build tool
+# Clang 12 build tool
 
-set(LLVM_VERSION 7.0.0)
-set(LLVM_BASE_URL "https://releases.llvm.org/${LLVM_VERSION}")
+# FIXME Switch to 12.0.1
+set(LLVM_VERSION 12.0.0)
+set(LLVM_BASE_URL "https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}")
 
 if(VCPKG_HOST_IS_WINDOWS)
     set(LLVM_FILENAME  "LLVM-${LLVM_VERSION}-win64.exe")
-    set(LLVM_HASH      c2b1342469275279f833fdc1e17ba5a9f99021306d6ab3d7209822a01d690767739eebf92fd9f23a44de5c5d00260fed50d5262b23a8eccac55b8ae901e2815c)
+    set(LLVM_HASH      0)
 elseif(VCPKG_HOST_IS_LINUX)
-    set(LLVM_FILENAME  "clang+llvm-${LLVM_VERSION}-x86_64-linux-gnu-ubuntu-16.04.tar.xz")
-    set(LLVM_HASH      fb3dc588137426dc28a20ef5e34e9341b18114f03bf7d83fafbb301efbfd801bba08615b804817c80252e366de9d2f8efbef034e53a1b885b34c86c2fbbf9c28)
+    set(LLVM_FILENAME  "clang+llvm-${LLVM_VERSION}-x86_64-linux-gnu-ubuntu-20.04.tar.xz")
+    set(LLVM_HASH      0)
 elseif(VCPKG_HOST_IS_FREEBSD)
     set(LLVM_FILENAME  "clang+llvm-${LLVM_VERSION}-amd64-unknown-freebsd11.tar.xz")
-    set(LLVM_HASH      d501484c38cfced196128866a19f7fef1e0b5d609ea050d085b7deab04ac8cc2bbf74b3cfe6cd90d8ea17a1d9cfca028a6c933f0736153ba48785ddc8646574f)
+    set(LLVM_HASH      0)
 elseif(VCPKG_HOST_IS_OSX)
     set(LLVM_FILENAME  "clang+llvm-${LLVM_VERSION}-x86_64-apple-darwin.tar.xz")
-    set(LLVM_HASH      c5ca6a7756e0cecdf78d4d0c522fe7e803d4b1b2049cb502a034fe8f5ca30fcbf0e738ebfbc89c87de8adcd90ea64f637eb82e9130bb846b43b91f67dfa4b916)
+    set(LLVM_HASH      2e74791425c12dacc201c5cfc38be7abe0ac670ddb079e75d477bf3f78d1dad442d1b4c819d67e0ba51c4474d8b7a726d4c50b7ad69d536e30edc38d1dce78b8)
 else()
-    message(FATAL_ERROR "Pre-built binaries for Clang 7 not available, aborting install (platform: ${VCPKG_CMAKE_SYSTEM_NAME}).")
+    message(FATAL_ERROR "Pre-built binaries for Clang 12 not available, aborting install (platform: ${VCPKG_CMAKE_SYSTEM_NAME}).")
 endif()
 
 vcpkg_download_distfile(LLVM_ARCHIVE_PATH
@@ -58,29 +59,26 @@ else()
     )
 endif()
 
-set(LLVM_CLANG7 "${LLVM_DIRECTORY}/bin/clang${VCPKG_HOST_EXECUTABLE_SUFFIX}")
-if(NOT EXISTS "${LLVM_CLANG7}")
-    message(FATAL_ERROR "Missing required build tool clang 7, please check your setup.")
+set(LLVM_CLANG12 "${LLVM_DIRECTORY}/bin/clang${VCPKG_HOST_EXECUTABLE_SUFFIX}")
+if(NOT EXISTS "${LLVM_CLANG12}")
+    message(FATAL_ERROR "Missing required build tool clang 12, please check your setup.")
 endif()
 
 # MDL-SDK
-
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO NVIDIA/MDL-SDK
-    REF d6c9a6560265025a30d16fcd9d664f830ab63109
-    SHA512 d6161a317ca0fd3cf8c782f058fc43765d611b5f6a8e82da736f5164a0e1829a46f75e376715fcb7cb9521406365aa88880ed44235b2bf63899affcc5bd54091
+    REF 9ccd1485447870f847244139d0c2168ce2c400af # 2022.0.1
+    SHA512 653666e250ff374d35175a5beedeec168ca95126ee7a0209c2e14d8ffaf385f01c0e97d03f013e5818a46bcfcf0479b6c6b88f8cb10b404157273401f579d510
     HEAD_REF master
     PATCHES
         001-freeimage-from-vcpkg.patch
         002-install-rules.patch
         003-freeimage-disable-faxg3.patch
-        004-missing-std-includes.patch
         005-missing-link-windows-crypt-libraries.patch
-        006-guard-nonexisting-targets.patch
         007-plugin-options.patch
-        008-build-static-llvm.patch
-        009-include-priority-vendored-llvm.patch
+        # 008-build-static-llvm.patch
+        # 009-include-priority-vendored-llvm.patch
 )
 
 string(COMPARE NOTEQUAL "${VCPKG_CRT_LINKAGE}" "static" _MVSC_CRT_LINKAGE_OPTION)
@@ -103,18 +101,21 @@ vcpkg_cmake_configure(
         -DMDL_MSVC_DYNAMIC_RUNTIME_EXAMPLES:BOOL=${_MVSC_CRT_LINKAGE_OPTION}
 
         -DMDL_ENABLE_CUDA_EXAMPLES:BOOL=OFF
-        -DMDL_ENABLE_OPENGL_EXAMPLES:BOOL=OFF
-        -DMDL_ENABLE_QT_EXAMPLES:BOOL=OFF
         -DMDL_ENABLE_D3D12_EXAMPLES:BOOL=OFF
-        -DMDL_ENABLE_OPTIX7_EXAMPLES:BOOL=OFF
         -DMDL_ENABLE_MATERIALX:BOOL=OFF
+        -DMDL_ENABLE_OPENGL_EXAMPLES:BOOL=OFF
+        -DMDL_ENABLE_OPTIX7_EXAMPLES:BOOL=OFF
+        -DMDL_ENABLE_PYTHON_BINDINGS:BOOL=OFF
+        -DMDL_ENABLE_QT_EXAMPLES:BOOL=OFF
+        -DMDL_ENABLE_TESTS:BOOL=OFF
+        -DMDL_ENABLE_VULKAN_EXAMPLES:BOOL=OFF
 
         -DMDL_BUILD_SDK_EXAMPLES:BOOL=OFF
         -DMDL_BUILD_CORE_EXAMPLES:BOOL=OFF
         -DMDL_BUILD_ARNOLD_PLUGIN:BOOL=OFF
         
         -Dpython_PATH:PATH=${PYTHON3}
-        -Dclang_PATH:PATH=${LLVM_CLANG7}
+        -Dclang_PATH:PATH=${LLVM_CLANG12}
 
         ${FEATURE_OPTIONS}
 
