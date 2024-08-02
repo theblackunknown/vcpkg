@@ -1,0 +1,44 @@
+diff --git a/cmake/defaults/Packages.cmake b/cmake/defaults/Packages.cmake
+index ec4ab0c43..ab42bc276 100644
+--- a/cmake/defaults/Packages.cmake
++++ b/cmake/defaults/Packages.cmake
+@@ -261,6 +261,7 @@ if (PXR_BUILD_IMAGING)
+         endif()
+         find_package(unofficial-shaderc CONFIG REQUIRED)
+         find_package(unofficial-spirv-reflect CONFIG REQUIRED)
++        find_package(unofficial-vulkanmemoryallocator CONFIG REQUIRED)
+     endif()
+     # --Opensubdiv
+     find_package(OpenSubdiv 3 CONFIG REQUIRED)
+diff --git a/pxr/imaging/hgiVulkan/CMakeLists.txt b/pxr/imaging/hgiVulkan/CMakeLists.txt
+index 7dadea311..a50ac1517 100644
+--- a/pxr/imaging/hgiVulkan/CMakeLists.txt
++++ b/pxr/imaging/hgiVulkan/CMakeLists.txt
+@@ -16,6 +16,7 @@ pxr_library(hgiVulkan
+         ${VULKAN_LIBS}
+         unofficial::shaderc::shaderc
+         unofficial::SPIRV-Reflect::SPIRV-Reflect
++        unofficial::VulkanMemoryAllocator::VulkanMemoryAllocator
+ 
+     PUBLIC_CLASSES
+         blitCmds
+@@ -42,7 +43,6 @@ pxr_library(hgiVulkan
+         shaderProgram
+         shaderSection
+         texture
+-        vk_mem_alloc
+ 
+     PUBLIC_HEADERS
+         api.h
+diff --git a/pxr/pxrConfig.cmake.in b/pxr/pxrConfig.cmake.in
+index d5b0d2f77..fc6074d3d 100644
+--- a/pxr/pxrConfig.cmake.in
++++ b/pxr/pxrConfig.cmake.in
+@@ -28,6 +28,7 @@ if(@PXR_BUILD_IMAGING@)
+     if(@PXR_ENABLE_VULKAN_SUPPORT@)
+         find_dependency(unofficial-shaderc CONFIG)
+         find_dependency(unofficial-spirv-reflect CONFIG)
++        find_dependency(unofficial-vulkanmemoryallocator CONFIG)
+     endif()
+ endif()
+ 

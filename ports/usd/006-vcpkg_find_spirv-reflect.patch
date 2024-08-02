@@ -1,0 +1,46 @@
+diff --git a/cmake/defaults/Packages.cmake b/cmake/defaults/Packages.cmake
+index 953dfbeaa..ec4ab0c43 100644
+--- a/cmake/defaults/Packages.cmake
++++ b/cmake/defaults/Packages.cmake
+@@ -260,6 +260,7 @@ if (PXR_BUILD_IMAGING)
+             message(FATAL_ERROR "VULKAN_SDK not valid")
+         endif()
+         find_package(unofficial-shaderc CONFIG REQUIRED)
++        find_package(unofficial-spirv-reflect CONFIG REQUIRED)
+     endif()
+     # --Opensubdiv
+     find_package(OpenSubdiv 3 CONFIG REQUIRED)
+diff --git a/pxr/imaging/hgiVulkan/CMakeLists.txt b/pxr/imaging/hgiVulkan/CMakeLists.txt
+index aaac93ee6..7dadea311 100644
+--- a/pxr/imaging/hgiVulkan/CMakeLists.txt
++++ b/pxr/imaging/hgiVulkan/CMakeLists.txt
+@@ -15,6 +15,7 @@ pxr_library(hgiVulkan
+         trace
+         ${VULKAN_LIBS}
+         unofficial::shaderc::shaderc
++        unofficial::SPIRV-Reflect::SPIRV-Reflect
+ 
+     PUBLIC_CLASSES
+         blitCmds
+@@ -47,9 +48,6 @@ pxr_library(hgiVulkan
+         api.h
+         vulkan.h
+ 
+-    PRIVATE_CLASSES
+-        spirv_reflect
+-
+     RESOURCE_FILES
+         plugInfo.json
+ )
+diff --git a/pxr/pxrConfig.cmake.in b/pxr/pxrConfig.cmake.in
+index 62bb13a1b..d5b0d2f77 100644
+--- a/pxr/pxrConfig.cmake.in
++++ b/pxr/pxrConfig.cmake.in
+@@ -27,6 +27,7 @@ if(@PXR_BUILD_IMAGING@)
+     endif()
+     if(@PXR_ENABLE_VULKAN_SUPPORT@)
+         find_dependency(unofficial-shaderc CONFIG)
++        find_dependency(unofficial-spirv-reflect CONFIG)
+     endif()
+ endif()
+ 
